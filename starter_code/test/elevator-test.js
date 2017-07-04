@@ -150,10 +150,44 @@ describe('Elevator', function () {
 
         expect(elevator.passengers.length).to.equal(1);
         
-      })
+      });
 
-    })
+    });
 
+    describe('requests', () => {
+
+      it('should grow/shrink', () => {
+
+        elevator.call(new Person('foo', 0, 3));
+        elevator.call(new Person('bar', 1, 2));
+
+        expect(elevator.requests).to.have.same.members([0,1]);
+
+        elevator.update(); 
+
+        expect(elevator.floor).to.equal(1);
+
+        expect(elevator.requests).to.have.same.members([0,1,3]);
+
+        elevator.update(); 
+
+        expect(elevator.floor).to.equal(2);
+
+        expect(elevator.requests).to.have.same.members([0,1,3,2]);
+
+        elevator.update(); 
+
+        expect(elevator.floor).to.equal(3);
+
+        expect(elevator.requests).to.have.same.members([0,3]);
+
+        elevator.update();
+
+        expect(elevator.requests).to.have.same.members([]);
+
+
+      });
+    });
 
   });
 

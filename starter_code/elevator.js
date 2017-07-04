@@ -31,18 +31,12 @@ class Elevator {
 
       var maxRequest = Math.max(...this.requests);
 
-      this.direction = this.floor >= maxRequest ? this.DOWN : this.UP;
+      this.direction = this.direction === this.UP && this.floor < maxRequest ? this.UP : this.DOWN;
     }
 
     this._passengersLeave();
 
     this._passengersEnter();
-
-    let floorIndex = this.requests.indexOf(this.floor);
-
-    if (floorIndex > -1) {
-      this.requests.splice(floorIndex, 1);
-    }
 
     if (this.direction === this.UP && this.requests.length > 0) {
       this.floorUp();
@@ -50,8 +44,6 @@ class Elevator {
       this.floorDown();
     }
   }
-
-
 
   _sameDirection(person) {
 
@@ -78,11 +70,21 @@ class Elevator {
     }
   }
   _passengersLeave() {
+    
     for (let i = this.passengers.length - 1; i >= 0; i--) {
+      
       let passenger = this.passengers[i];
+      
       if (passenger.destinationFloor === this.floor) {
+        
         this.passengers.splice(i, 1);
+
+        this.requests.splice(this.requests.indexOf(passenger.originFloor), 1);
+        
+        this.requests.splice(this.requests.indexOf(passenger.destinationFloor), 1);
+
         this.log(`${passenger.name} has exited the elevator`);
+
       }
     }
   }
