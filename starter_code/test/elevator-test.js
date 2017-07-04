@@ -39,6 +39,7 @@ describe('Elevator', function () {
       });
 
     });
+ 
 
     describe('requests', () => {
 
@@ -48,32 +49,24 @@ describe('Elevator', function () {
         expect(elevator.requests[0]).to.equal(person.originFloor);
       });
     });
-
+ 
     describe('direction', () => {
 
-      it('should start out UP', () => {
-        expect(elevator.direction).to.equal(elevator.UP);
+      it('should be IDLE with no requests', () => {
+        expect(elevator.direction).to.equal(elevator.IDLE);
       });
 
-      it('should be UP on bottom floor', () => {
-        elevator.floor = 1;
-        elevator.direction = elevator.DOWN;
-        elevator.floorDown();
+      it('should be UP if head request is above', () => {
+        elevator.call(person);
         elevator.update();
         expect(elevator.direction).to.equal(elevator.UP);
       });
 
-      it('should move up to requested floor', () => {
-        
-        let person = new Person('Jane', 0 , 5);
-        
+      it('should be DOWN if head request is below', () => {
+        elevator.floor = 5;
         elevator.call(person);
-
-        for (let floor = 0; floor <= person.floor; floor++) {
-          expect(elevator.floor).to.equal(floor);
-          elevator.update();
-        }
-        
+        elevator.update();
+        expect(elevator.direction).to.equal(elevator.DOWN);
       });
 
     });
@@ -111,7 +104,7 @@ describe('Elevator', function () {
         }
 
         expect(elevator.passengers.length).to.equal(1);
-        
+
       })
 
       it('should pick up downward bound people', () => {
@@ -159,27 +152,22 @@ describe('Elevator', function () {
       it('should grow/shrink', () => {
 
         elevator.call(new Person('foo', 0, 3));
+
         elevator.call(new Person('bar', 1, 2));
 
         expect(elevator.requests).to.have.same.members([0,1]);
 
         elevator.update(); 
 
-        expect(elevator.floor).to.equal(1);
-
-        expect(elevator.requests).to.have.same.members([0,1,3]);
+        expect(elevator.requests).to.have.same.members([1,3]);
 
         elevator.update(); 
 
-        expect(elevator.floor).to.equal(2);
-
-        expect(elevator.requests).to.have.same.members([0,1,3,2]);
+        expect(elevator.requests).to.have.same.members([3,2]);
 
         elevator.update(); 
 
-        expect(elevator.floor).to.equal(3);
-
-        expect(elevator.requests).to.have.same.members([0,3]);
+        expect(elevator.requests).to.have.same.members([3]);
 
         elevator.update();
 

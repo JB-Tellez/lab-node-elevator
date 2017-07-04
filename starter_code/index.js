@@ -6,7 +6,8 @@ const elevator = new Elevator();
 let people = [
     new Person('Jane Doe', 0, 5),
     new Person('Joan Duex', 1, 3),
-    new Person('Daffy Duck', 4, 2)
+    new Person('Daffy Duck', 4, 2),
+    new Person('Porky Pig', 3, 8),
 ];
 
 

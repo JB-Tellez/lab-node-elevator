@@ -4,10 +4,11 @@ class Elevator {
     this.MAXFLOOR = 10;
     this.UP = 'up';
     this.DOWN = 'down';
+    this.IDLE = 'idle';
     this.requests = [];
     this.waitingList = [];
     this.passengers = [];
-    this.direction = this.UP;
+    this.direction = this.IDLE;
   }
 
   start() {
@@ -21,33 +22,46 @@ class Elevator {
   }
   update() {
 
-    this.log(`Direction: ${this.direction} | Floor: ${this.floor}`);
-
-    if (this.floor === 0) {
-
-      this.direction = this.UP;
-
-    } else {
-
-      var maxRequest = Math.max(...this.requests);
-
-      this.direction = this.direction === this.UP && this.floor < maxRequest ? this.UP : this.DOWN;
-    }
+    this.log(`Direction: ${this.direction} | Floor: ${this.floor} | ${this.requests}`);
 
     this._passengersLeave();
 
+    if (this.passengers.length === 0) {
+      this.direction = this.IDLE;
+    }
+
     this._passengersEnter();
 
-    if (this.direction === this.UP && this.requests.length > 0) {
-      this.floorUp();
-    } else if (this.direction === this.DOWN) {
-      this.floorDown();
+    if (this.requests.length) {
+
+      let headRequest = this.requests[0];
+
+      let headRequestIsAbove = headRequest > this.floor;
+
+      let headRequestIsBelow = headRequest < this.floor;
+
+      let elevatorCanGoUp = this.direction !== this.DOWN;
+
+      let elevatorCanGoDown = this.direction !== this.UP;
+
+      if (headRequestIsAbove && elevatorCanGoUp) {
+
+        this.direction = this.UP;
+
+      } else if (headRequestIsBelow && elevatorCanGoDown) {
+
+        this.direction = this.DOWN;
+      }
+
+      this.direction === this.UP ? this.floorUp() : this.floorDown();
+
     }
   }
 
   _sameDirection(person) {
 
-    return (this.direction === this.UP && person.upwardBound) ||
+    return this.direction === this.IDLE ||
+      (this.direction === this.UP && person.upwardBound) ||
       (this.direction === this.DOWN && !person.upwardBound)
   }
 
@@ -62,25 +76,25 @@ class Elevator {
         this.passengers.push(person);
 
         this.waitingList.splice(i, 1);
-        
+
         this.requests.push(person.destinationFloor);
-        
+
+        this.requests.splice(this.requests.indexOf(person.originFloor), 1);
+
         this.log(`${person.name} has entered the elevator`);
       }
     }
   }
   _passengersLeave() {
-    
+
     for (let i = this.passengers.length - 1; i >= 0; i--) {
-      
+
       let passenger = this.passengers[i];
-      
+
       if (passenger.destinationFloor === this.floor) {
-        
+
         this.passengers.splice(i, 1);
 
-        this.requests.splice(this.requests.indexOf(passenger.originFloor), 1);
-        
         this.requests.splice(this.requests.indexOf(passenger.destinationFloor), 1);
 
         this.log(`${passenger.name} has exited the elevator`);
